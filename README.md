@@ -425,7 +425,12 @@ See [Freerouting Guide](docs/FREEROUTING_GUIDE.md) for setup and usage.
 
 ### Required Software
 
-**KiCAD 9.0 or higher**
+**KiCAD Support**
+
+We support and run CI tests against the following KiCAD versions:
+- KiCAD 8.0
+- KiCAD 9.0 (Recommended)
+- KiCAD 10.0 (Nightly builds, actively fixing compatibility issues like #84, #193, #212)
 
 - Download from [kicad.org/download](https://www.kicad.org/download/)
 - Must include Python module (pcbnew)

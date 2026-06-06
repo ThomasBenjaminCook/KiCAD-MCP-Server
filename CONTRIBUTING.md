@@ -19,7 +19,7 @@ Thank you for your interest in contributing to the KiCAD MCP Server! This guide 
 
 ### Prerequisites
 
-- **KiCAD 9.0 or higher** - [Download here](https://www.kicad.org/download/)
+- **KiCAD 8.0, 9.0, or 10.0** - [Download here](https://www.kicad.org/download/) (Note: KiCAD 10.0 is tested via nightly builds)
 - **Node.js v18+** - [Download here](https://nodejs.org/)
 - **Python 3.9+** - Comes bundled with KiCAD (macOS builds ship Python 3.9; Linux/Windows builds ship Python 3.11)
 - **Git** - For version control
@@ -29,7 +29,7 @@ Thank you for your interest in contributing to the KiCAD MCP Server! This guide 
 #### Linux (Ubuntu/Debian)
 
 ```bash
-# Install KiCAD 9.0 from official PPA
+# Install KiCAD 9.0 from official PPA (or use kicad-8.0-releases, or kicad-dev-nightly for KiCAD 10)
 sudo add-apt-repository --yes ppa:kicad/kicad-9.0-releases
 sudo apt-get update
 sudo apt-get install -y kicad kicad-libraries

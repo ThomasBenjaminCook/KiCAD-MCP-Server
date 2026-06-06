@@ -74,7 +74,7 @@ jobs:
         run: pylint python/ || echo "Pylint not configured yet"
 
       - name: Run pytest
-        run: pytest python/ --cov=python --cov-report=xml || echo "Tests not configured yet"
+        run: pytest tests/ -m unit --cov=python --cov-report=xml || echo "Tests not configured yet"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -88,6 +88,9 @@ jobs:
   integration-tests:
     name: Integration Tests (Linux + KiCAD)
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        kicad: ["8.0", "9.0", "10.0"]
 
     steps:
       - name: Checkout code
@@ -105,16 +108,27 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Add KiCAD PPA and Install KiCAD 9.0
+      - name: Add KiCAD PPA and Install KiCAD ${{ matrix.kicad }}
         run: |
-          sudo add-apt-repository --yes ppa:kicad/kicad-9.0-releases
-          sudo apt-get update
-          sudo apt-get install -y kicad kicad-libraries
+          if [ "${{ matrix.kicad }}" = "10.0" ]; then
+            sudo add-apt-repository --yes ppa:kicad/kicad-dev-nightly
+            sudo apt-get update
+            sudo apt-get install -y kicad-nightly kicad-nightly-libraries
+          else
+            sudo add-apt-repository --yes ppa:kicad/kicad-${{ matrix.kicad }}-releases
+            sudo apt-get update
+            sudo apt-get install -y kicad kicad-libraries
+          fi
 
       - name: Verify KiCAD installation
         run: |
-          kicad-cli version || echo "kicad-cli not found"
-          python3 -c "import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
+          if [ "${{ matrix.kicad }}" = "10.0" ]; then
+            kicad-cli-nightly version || echo "kicad-cli-nightly not found"
+            python3 -c "import sys; sys.path.append('/usr/lib/kicad-nightly/lib/python3/dist-packages'); import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
+          else
+            kicad-cli version || echo "kicad-cli not found"
+            python3 -c "import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
+          fi
 
       - name: Install dependencies
         run: |
@@ -126,8 +140,10 @@ jobs:
 
       - name: Run integration tests
         run: |
-          echo "Integration tests not yet configured"
-          # pytest tests/integration/
+          if [ "${{ matrix.kicad }}" = "10.0" ]; then
+            export PYTHONPATH="/usr/lib/kicad-nightly/lib/python3/dist-packages:$PYTHONPATH"
+          fi
+          pytest tests/
 
   # Docker build test
   docker-build:
