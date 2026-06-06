@@ -74,7 +74,7 @@ jobs:
         run: pylint python/ || echo "Pylint not configured yet"
 
       - name: Run pytest
-        run: pytest tests/ -m unit --cov=python --cov-report=xml || echo "Tests not configured yet"
+        run: pytest tests/ -m unit --cov=python --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -143,7 +143,7 @@ jobs:
           if [ "${{ matrix.kicad }}" = "10.0" ]; then
             export PYTHONPATH="/usr/lib/kicad-nightly/lib/python3/dist-packages:$PYTHONPATH"
           fi
-          pytest tests/
+          pytest tests/ -m integration
 
   # Docker build test
   docker-build:
