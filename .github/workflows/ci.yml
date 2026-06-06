@@ -114,21 +114,22 @@ jobs:
             sudo add-apt-repository --yes ppa:kicad/kicad-dev-nightly
             sudo apt-get update
             sudo apt-get install -y kicad-nightly kicad-nightly-libraries
+            echo "PYTHONPATH=/usr/lib/kicad-nightly/lib/python3/dist-packages:/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
           else
             sudo add-apt-repository --yes ppa:kicad/kicad-${{ matrix.kicad }}-releases
             sudo apt-get update
             sudo apt-get install -y kicad kicad-libraries
+            echo "PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
           fi
 
       - name: Verify KiCAD installation
         run: |
           if [ "${{ matrix.kicad }}" = "10.0" ]; then
             kicad-cli-nightly version || echo "kicad-cli-nightly not found"
-            python3 -c "import sys; sys.path.extend(['/usr/lib/kicad-nightly/lib/python3/dist-packages', '/usr/lib/python3/dist-packages']); import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
           else
             kicad-cli version || echo "kicad-cli not found"
-            python3 -c "import sys; sys.path.append('/usr/lib/python3/dist-packages'); import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
           fi
+          python3 -c "import pcbnew; print(f'pcbnew version: {pcbnew.GetBuildVersion()}')" || echo "pcbnew module not found"
 
       - name: Install dependencies
         run: |
@@ -140,13 +141,7 @@ jobs:
         run: npm run build
 
       - name: Run integration tests
-        run: |
-          if [ "${{ matrix.kicad }}" = "10.0" ]; then
-            export PYTHONPATH="/usr/lib/kicad-nightly/lib/python3/dist-packages:/usr/lib/python3/dist-packages:$PYTHONPATH"
-          else
-            export PYTHONPATH="/usr/lib/python3/dist-packages:$PYTHONPATH"
-          fi
-          pytest tests/ -m integration
+        run: pytest tests/ -m integration
 
   # Docker build test
   docker-build:
