@@ -19,6 +19,7 @@ import os
 import sys
 import textwrap
 from pathlib import Path
+from typing import Optional
 from unittest.mock import MagicMock
 
 import pytest
@@ -65,7 +66,7 @@ SYMBOL_X = 100.0
 SYMBOL_Y = 100.0
 
 
-def _make_sch_text(rotation: float, mirror: str | None) -> str:
+def _make_sch_text(rotation: float, mirror: Optional[str]) -> str:
     mirror_line = ""
     if mirror == "x":
         mirror_line = "(mirror x)"
@@ -97,13 +98,13 @@ def _make_sch_text(rotation: float, mirror: str | None) -> str:
     """)
 
 
-def _write_sch(tmp_path: Path, rotation: float, mirror: str | None) -> Path:
+def _write_sch(tmp_path: Path, rotation: float, mirror: Optional[str]) -> Path:
     p = tmp_path / f"r_rot{int(rotation)}_mirror{mirror or 'none'}.kicad_sch"
     p.write_text(_make_sch_text(rotation, mirror))
     return p
 
 
-def _expected_stub_angle(pin_num: str, rotation: float, mirror: str | None) -> float:
+def _expected_stub_angle(pin_num: str, rotation: float, mirror: Optional[str]) -> float:
     """Geometrically expected outward angle: extend in library coords by +length
     along library angle, transform to world, take atan2 of displacement."""
     pin = PIN_DEFS[pin_num]
