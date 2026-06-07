@@ -16,6 +16,7 @@ Background:
 """
 
 import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -39,6 +40,7 @@ def _make_symbol_manager() -> SymbolLibraryManager:
     manager.project_path = None
     manager.libraries = {}
     manager.symbol_cache = {}
+    manager._cache_lock = threading.Lock()
     return manager
 
 
