@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04, windows-latest, macos-latest]
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout code
@@ -114,16 +114,17 @@ jobs:
             sudo add-apt-repository --yes ppa:kicad/kicad-dev-nightly
             sudo apt-get update
             sudo apt-get install -y kicad-nightly kicad-nightly-libraries
-            echo "PYTHONPATH=/usr/lib/kicad-nightly/lib/python3/dist-packages:/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
+            echo "KICAD_PYTHONPATH=/usr/lib/kicad-nightly/lib/python3/dist-packages:/usr/lib/python3/dist-packages" >> $GITHUB_ENV
           else
             sudo add-apt-repository --yes ppa:kicad/kicad-${{ matrix.kicad }}-releases
             sudo apt-get update
             sudo apt-get install -y kicad kicad-libraries
-            echo "PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
+            echo "KICAD_PYTHONPATH=/usr/lib/python3/dist-packages" >> $GITHUB_ENV
           fi
 
       - name: Verify KiCAD installation
         run: |
+          export PYTHONPATH="$KICAD_PYTHONPATH:$PYTHONPATH"
           if [ "${{ matrix.kicad }}" = "10.0" ]; then
             kicad-cli-nightly version || echo "kicad-cli-nightly not found"
           else
@@ -141,7 +142,9 @@ jobs:
         run: npm run build
 
       - name: Run integration tests
-        run: pytest tests/ -m integration
+        run: |
+          export PYTHONPATH="$KICAD_PYTHONPATH:$PYTHONPATH"
+          pytest tests/ -m integration
 
   # Docker build test
   docker-build:
